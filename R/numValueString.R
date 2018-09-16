@@ -5,7 +5,7 @@
 #'
 #' @param value number
 #' @param numDigits number 2 (default)
-#' @param unit "ms", "mv", or "\%" or "" (default)
+#' @param unit "ms", "mv", "mV", or "\%" or "" (default)
 #'
 #' @return character
 #'
@@ -23,7 +23,7 @@
 numValueString <- function(value, numDigits = 2, unit = "") {
 
   value <- format(round(value, numDigits), nsmall = numDigits)
-  if (unit == "mv") {
+  if (unit %in% c("mv", "mV")) {
     return(paste0(value, " $\\\\mu$V"))
   } else if (unit == "ms") {
     return(paste0(value, " ms"))
@@ -32,7 +32,7 @@ numValueString <- function(value, numDigits = 2, unit = "") {
   } else if (unit == "") {
     return(paste0(value))
   } else {
-    stop("Unit not recognized! Unit should be \"mv\", \"ms\" or \"%\".")
+    stop("Unit not recognized! Unit should be \"mv\", \"mV\", \"ms\" or \"%\".")
   }
 
 }

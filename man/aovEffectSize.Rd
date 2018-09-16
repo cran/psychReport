@@ -9,7 +9,7 @@ aovEffectSize(ezObj, effectSize)
 \arguments{
 \item{ezObj}{Output from ezANOVA}
 
-\item{effectSize}{"pes" vs "es"}
+\item{effectSize}{"ges" vs. pes" vs "es"}
 }
 \value{
 list

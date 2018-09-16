@@ -60,9 +60,9 @@ aovTable <- function(ezObj,
                      dispAovTable = TRUE,
                      dispAovMeans = FALSE) {
 
-  if ("aovTable" %in% names(ezObj)) {
-      stop("aovTable already called on ezObj! Re-run ezANOVA.")
-  }
+  # if ("aovTable" %in% names(ezObj)) {
+  #     stop("aovTable already called on ezObj! Re-run ezANOVA.")
+  # }
 
   if (!"SSn" %in% names(ezObj$ANOVA)) {
     stop("Call ezANOVA with \"detailed = TRUE\"!")

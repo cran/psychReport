@@ -4,7 +4,7 @@
 #' to ezANOVA table.
 #'
 #' @param ezObj Output from ezANOVA
-#' @param effectSize "pes" vs "es"
+#' @param effectSize "ges" vs. pes" vs "es"
 #'
 #' @return list
 #'
@@ -42,10 +42,9 @@
 aovEffectSize <- function(ezObj, effectSize) {
 
   if (effectSize == "ges") {
-   # default within ezANOVA
-    if (!"ges" %in% names(ezObj$ANOVA)) {
-      stop("Re-run ezANOVA to calculate generalized-eta squared!")
-    }
+    ezObj$ANOVA$ges <- ezObj$ANOVA$SSn / (ezObj$ANOVA$SSn + sum(ezObj$ANOVA$SSd))
+    ezObj$ANOVA$es  <- NULL
+    ezObj$ANOVA$pes <- NULL
   } else if (effectSize == "pes") {
     ezObj$ANOVA$ges <- NULL
     ezObj$ANOVA$es  <- NULL
@@ -53,7 +52,9 @@ aovEffectSize <- function(ezObj, effectSize) {
   } else if (effectSize == "es") {
     ezObj$ANOVA$ges <- NULL
     ezObj$ANOVA$pes <- NULL
-    ezObj$ANOVA$es  <- ezObj$ANOVA$SSn / (sum(ezObj$ANOVA$SSd) + ezObj$ANOVA$SSn)
+    intercept <- which(ezObj$ANOVA$Effect == "(Intercept)")
+    effects   <- which(ezObj$ANOVA$Effect != "(Intercept)")
+    ezObj$ANOVA$es  <- ezObj$ANOVA$SSn / (sum(ezObj$ANOVA$SSn[effects]) + sum(ezObj$ANOVA$SSd[effects]) + ezObj$ANOVA$SSd[intercept])
   } else {
     stop("effectSize not recognized!")
   }

@@ -39,6 +39,7 @@
 #' @export
 aovJackknifeAdjustment <- function(ezObj, numVPs) {
 
+  ezObj$ANOVA$SSd     <- ezObj$ANOVA$SSd*((numVPs - 1) ^ 2)
   ezObj$ANOVA$F       <- ezObj$ANOVA$F/((numVPs - 1) ^ 2)
   ezObj$ANOVA$p       <- 1 - stats::pf(ezObj$ANOVA$F, ezObj$ANOVA$DFn, ezObj$ANOVA$DFd)
   ezObj$ANOVA$"p<.05" <- pValueSummary(ezObj$ANOVA$p)

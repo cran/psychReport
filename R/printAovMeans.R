@@ -24,7 +24,7 @@
 #'
 #' aovRT <- ezANOVA(dat, dv=.(RT), wid = .(VP), within = .(Comp), return_aov = TRUE, detailed = TRUE)
 #' aovRT <- aovTable(aovRT)
-#' printAovMeans(aovRT)  # latex formatted
+#' printAovMeans(aovRT, digits = 2,, dv = "ms")  # latex formatted
 #'
 #' \dontrun{
 #' # Example use in *.Rnw Sweave file inside R chunk
@@ -35,16 +35,66 @@
 #' @export
 printAovMeans <- function(ezObj, caption = "Mean", digits = 3, dv = "ms") {
 
-  hasMeans <- ezObj$means
-  if (is.null(hasMeans)) {
-    stop("ezANOVA object does not contain marginal means!\nCall ezANOVA with \"return_aov = TRUE\"")
-  } else {
-    means = ezObj$means
+  # input checks
+  multipleObjs <- any(sapply(ezObj[[1]], is.list))
+  if (multipleObjs) {
+    for (i in seq(1:length(ezObj))) {
+      if (is.null(ezObj[[i]]$means)) {
+        stop("ezANOVA object does not contain marginal means!\nCall ezANOVA with \"return_aov = TRUE\"")
+      }
+    }
+    if (!length(digits) %in% c(1, length(ezObj))) {
+      stop("length digits must equal 1 or number of ezObj inputs")
+    }
+    if (!length(dv) %in% c(1, length(ezObj))) {
+      stop("dv length must equal 1 or number of ezObj inputs")
+    }
   }
 
-  for (i in 2:(length(means$n) + 1)) {
-    printTable(reshape2::melt(means$tables[[i]][], value.name = dv),
-               caption = paste0(caption, ": ", c(row.names(as.data.frame(means$n)))[i - 1]),
-               digits = digits)
+  if (!multipleObjs) {
+    if (is.null(ezObj$means)) {
+      stop("ezANOVA object does not contain marginal means!\nCall ezANOVA with \"return_aov = TRUE\"")
+    }
+    if (length(digits) != 1) {
+      stop("length digits must equal 1")
+    }
+    if (length(dv) != 1) {
+      stop("dv length must equal 1")
+    }
   }
+
+  # format some common Latex strings within the caption label
+  caption <- gsub("%", "\\%",      caption, fixed = TRUE)
+  caption <- gsub("_", "\\_",      caption, fixed = TRUE)
+  caption <- gsub("mV", "$\\mu$V", caption, fixed = TRUE)
+
+  # format some common Latex strings within the dv label
+  dv <- gsub("%", "\\%",      dv, fixed = TRUE)
+  dv <- gsub("_", "\\_",      dv, fixed = TRUE)
+  dv <- gsub("mV", "$\\mu$V", dv, fixed = TRUE)
+
+  multipleObjs <- any(sapply(ezObj[[1]], is.list))
+  if (multipleObjs) {
+    for (i in 2:(length(ezObj[[1]]$means$n) + 1)) {
+      tab <- reshape2::melt(ezObj[[1]]$means$tables[[i]][], value.name = dv[1])
+      for (j in 2:length(ezObj)) {
+        tab <- cbind(tab, reshape2::melt(ezObj[[j]]$means$tables[[i]][], value.name = dv[j]))
+      }
+      tab <- tab[, !duplicated(colnames(tab))]
+
+      printTable(tab,
+                 caption = paste0(caption, ": ", names(ezObj[[1]]$means$n)[i - 1]),
+                 digits = digits)
+      }
+
+  } else {
+
+    for (i in 2:(length(ezObj$means$n) + 1)) {
+
+      printTable(reshape2::melt(ezObj$means$tables[[i]][], value.name = dv),
+                 caption = paste0(caption, ": ", names(ezObj$means$n)[i - 1]),
+                 digits = digits)
+       }
+  }
+
 }

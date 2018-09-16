@@ -15,34 +15,30 @@ test_that("aovEffectSize", {
 
   aovRT <- ezANOVA(dat, dv = .(RT), wid = .(VP), within = .(Comp),
                    return_aov = TRUE, detailed = TRUE)
+
+  # generalized eta squared
   aovRT <- aovEffectSize(aovRT, effectSize = "ges")
 
-  expect_equal(aovRT$ANOVA$ges[1], 0.8894566, tolerance = 0.00001)
-  expect_equal(aovRT$ANOVA$pes[1], NULL)
-  expect_equal(aovRT$ANOVA$es[1], NULL)
+  expect_equal(aovRT$ANOVA$ges[2], 0.03038679)
+  expect_equal(aovRT$ANOVA$pes[2], NULL)
+  expect_equal(aovRT$ANOVA$es[2], NULL)
 
-  aovRT <- ezANOVA(dat, dv = .(RT), wid = .(VP), within = .(Comp),
-                   return_aov = TRUE, detailed = TRUE)
+  # partial eta squared
   aovRT <- aovEffectSize(aovRT, effectSize = "pes")
 
-  expect_equal(aovRT$ANOVA$pes[1], 0.9648938, tolerance = 0.00001)
-  expect_equal(aovRT$ANOVA$ges[1], NULL)
-  expect_equal(aovRT$ANOVA$es[1], NULL)
+  expect_equal(aovRT$ANOVA$pes[2], 0.04243096)
+  expect_equal(aovRT$ANOVA$ges[2], NULL)
+  expect_equal(aovRT$ANOVA$es[2], NULL)
 
-  aovRT <- ezANOVA(dat, dv = .(RT), wid = .(VP), within = .(Comp),
-                   return_aov = TRUE, detailed = TRUE)
+  # eta squared
   aovRT <- aovEffectSize(aovRT, effectSize = "es")
 
-  expect_equal(aovRT$ANOVA$es[1], 0.8894566, tolerance = 0.00001)
-  expect_equal(aovRT$ANOVA$ges[1], NULL)
-  expect_equal(aovRT$ANOVA$pes[1], NULL)
+  expect_equal(aovRT$ANOVA$es[2], 0.03038679)
+  expect_equal(aovRT$ANOVA$ges[2], NULL)
+  expect_equal(aovRT$ANOVA$pes[2], NULL)
+
+  # non effect size
   expect_error(aovEffectSize(aovRT, effectSize = "abc"))
-
-  aovRT <- ezANOVA(dat, dv = .(RT), wid = .(VP), within = .(Comp),
-                   return_aov = TRUE, detailed = TRUE)
-  aovRT <- aovEffectSize(aovRT, effectSize = "es")
-
-  expect_error(aovEffectSize(aovRT, effectSize = "ges"))
 
 })
 

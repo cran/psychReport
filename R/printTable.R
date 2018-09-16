@@ -47,10 +47,18 @@ printTable <- function(obj, caption = "DF", digits=3, onlyContents=FALSE,
     names(obj) <- sub("\\<eps\\>", "$\\\\epsilon$",   names(obj))
   }
 
-  table <- xtable::xtable(obj, caption = caption)
-  table <- xtable::autoformat(table)
-  xtable::digits(table) <- digits
-  print(table,
+  if (length(digits) > 1) {
+    numCols            <- which(sapply(obj, is.numeric))
+    tmpDigits          <- rep(0, ncol(obj))
+    tmpDigits[numCols] <- digits
+    digits             <- c(0, tmpDigits)
+  }
+
+  tab <- xtable::xtable(obj, caption = caption)
+  tab <- xtable::autoformat(tab)
+  xtable::digits(tab) <- digits
+
+  print(tab,
         table.placement = "H",
         caption.placement = "top",
         include.rownames = FALSE,

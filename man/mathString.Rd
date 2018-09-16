@@ -4,29 +4,28 @@
 \alias{mathString}
 \title{mathString}
 \usage{
-mathString(str1, str2, operation = "subtract", numDigits = 0,
-  unit = "ms")
+mathString(str1, str2, operation = "-", numDigits = 0, unit = "ms")
 }
 \arguments{
 \item{str1}{string}
 
 \item{str2}{string}
 
-\item{operation}{"add" vs. "subtract"}
+\item{operation}{"+", "-", "*", "/"}
 
 \item{numDigits}{number 0 (default)}
 
-\item{unit}{"ms" vs. "mv" vs. "\%"}
+\item{unit}{"ms" , "mV" , "mv", or "\%"}
 }
 \description{
 Returns formatted string following addition/subtraction.
 }
 \examples{
 # Example 1:
-string <- mathString("550 ms", "480 ms")
+string <- mathString("550 ms", "480 ms", "-")
 
 # Example 2:
-string <- mathString("2.34", "1.65", "add", numDigits = 2, unit = "mv")
+string <- mathString("2.34", "1.65", "+", numDigits = 2, unit = "mV")
 
 \dontrun{
 # Example use in *.Rnw Sweave file

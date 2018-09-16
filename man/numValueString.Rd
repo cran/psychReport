@@ -11,7 +11,7 @@ numValueString(value, numDigits = 2, unit = "")
 
 \item{numDigits}{number 2 (default)}
 
-\item{unit}{"ms", "mv", or "\%" or "" (default)}
+\item{unit}{"ms", "mv", "mV", or "\%" or "" (default)}
 }
 \value{
 character
