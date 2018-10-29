@@ -47,12 +47,10 @@ aovSphericityAdjustment <- function(ezObj, type = "GG") {
     ezObj$ANOVA$p[sphericityRows]   <- ezObj$"Sphericity Corrections"$"p[GG]"
     ezObj$ANOVA$eps                 <- rep(0, length(ezObj$ANOVA$"Effect"))
     ezObj$ANOVA$eps[sphericityRows] <- ezObj$"Sphericity Corrections"$GGe
-    ezObj$ANOVA$"p<.05"             <- pValueSummary(ezObj$ANOVA$p)
   } else if (type == "HF") {
     ezObj$ANOVA$p[sphericityRows]   <- ezObj$"Sphericity Corrections"$"p[HF]"
     ezObj$ANOVA$eps                 <- rep(0, length(ezObj$ANOVA$"Effect"))
     ezObj$ANOVA$eps[sphericityRows] <- ezObj$"Sphericity Corrections"$HFe
-    ezObj$ANOVA$"p<.05"             <- pValueSummary(ezObj$ANOVA$p)
   } else {
     stop("Sphericity correction type not recognized!")
   }

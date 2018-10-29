@@ -34,8 +34,7 @@ pValueString <- function(pVal, nsmall = 2){
   }
 
   if (pVal >= 0.01) {
-    string <- paste0("\\\\emph{p} = ", format(round(pVal, nsmall),
-                                              nsmall = nsmall))
+    string <- paste0("\\\\emph{p} = ", format(round(pVal, nsmall), nsmall = nsmall))
     string <- gsub("0\\.", ".", string)
   } else if (pVal >= 0.001 & pVal < 0.01) {
     string <- paste0("\\\\emph{p}", " < .01")

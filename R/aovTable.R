@@ -60,10 +60,6 @@ aovTable <- function(ezObj,
                      dispAovTable = TRUE,
                      dispAovMeans = FALSE) {
 
-  # if ("aovTable" %in% names(ezObj)) {
-  #     stop("aovTable already called on ezObj! Re-run ezANOVA.")
-  # }
-
   if (!"SSn" %in% names(ezObj$ANOVA)) {
     stop("Call ezANOVA with \"detailed = TRUE\"!")
   }
@@ -83,6 +79,9 @@ aovTable <- function(ezObj,
   if (removeIntercept) {
     ezObj$ANOVA <- ezObj$ANOVA[-c(1), ]
   }
+
+  # p-value summary *** vs. ** vs *
+  ezObj$ANOVA$"p<.05" <- pValueSummary(ezObj$ANOVA$p)
 
   if (roundDigits) {
     ezObj <- aovRoundDigits(ezObj, nsmall = numDigits)

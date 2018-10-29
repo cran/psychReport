@@ -3,7 +3,7 @@
 #' @description Returns Latex formatted table of marginal means from model.tables.
 #' Uses printTable (xtable) latex package with some basic defaults.
 #' For more examples, see R package xtable
-#' @param ezObj Output from ezANOVA  (NB. ezANOVA must be called with \"return_aov = TRUE\"")
+#' @param ... Output from ezANOVA  (NB. ezANOVA must be called with \"return_aov = TRUE\"")
 #' @param caption Title for the table
 #' @param digits Number of digits to round to
 #' @param dv Name of the dependent variable (e.g., "ms", "\%")
@@ -24,7 +24,7 @@
 #'
 #' aovRT <- ezANOVA(dat, dv=.(RT), wid = .(VP), within = .(Comp), return_aov = TRUE, detailed = TRUE)
 #' aovRT <- aovTable(aovRT)
-#' printAovMeans(aovRT, digits = 2,, dv = "ms")  # latex formatted
+#' printAovMeans(aovRT, digits = 0, dv = "ms")  # latex formatted
 #'
 #' \dontrun{
 #' # Example use in *.Rnw Sweave file inside R chunk
@@ -33,34 +33,19 @@
 #' # @}
 #'
 #' @export
-printAovMeans <- function(ezObj, caption = "Mean", digits = 3, dv = "ms") {
+printAovMeans <- function(..., caption = "Mean", digits = 3, dv = "ms") {
 
-  # input checks
-  multipleObjs <- any(sapply(ezObj[[1]], is.list))
-  if (multipleObjs) {
-    for (i in seq(1:length(ezObj))) {
-      if (is.null(ezObj[[i]]$means)) {
-        stop("ezANOVA object does not contain marginal means!\nCall ezANOVA with \"return_aov = TRUE\"")
-      }
-    }
-    if (!length(digits) %in% c(1, length(ezObj))) {
-      stop("length digits must equal 1 or number of ezObj inputs")
-    }
-    if (!length(dv) %in% c(1, length(ezObj))) {
-      stop("dv length must equal 1 or number of ezObj inputs")
-    }
-  }
-
-  if (!multipleObjs) {
-    if (is.null(ezObj$means)) {
+  ezObj <- list(...)
+  for (i in seq(1:length(ezObj))) {
+    if (is.null(ezObj[[i]]$means)) {
       stop("ezANOVA object does not contain marginal means!\nCall ezANOVA with \"return_aov = TRUE\"")
     }
-    if (length(digits) != 1) {
-      stop("length digits must equal 1")
-    }
-    if (length(dv) != 1) {
-      stop("dv length must equal 1")
-    }
+  }
+  if (!length(digits) %in% c(1, length(ezObj))) {
+    stop("length digits must equal 1 or number of ezObj inputs")
+  }
+  if (!length(dv) %in% c(1, length(ezObj))) {
+    stop("dv length must equal 1 or number of ezObj inputs")
   }
 
   # format some common Latex strings within the caption label
@@ -73,28 +58,17 @@ printAovMeans <- function(ezObj, caption = "Mean", digits = 3, dv = "ms") {
   dv <- gsub("_", "\\_",      dv, fixed = TRUE)
   dv <- gsub("mV", "$\\mu$V", dv, fixed = TRUE)
 
-  multipleObjs <- any(sapply(ezObj[[1]], is.list))
-  if (multipleObjs) {
-    for (i in 2:(length(ezObj[[1]]$means$n) + 1)) {
-      tab <- reshape2::melt(ezObj[[1]]$means$tables[[i]][], value.name = dv[1])
-      for (j in 2:length(ezObj)) {
-        tab <- cbind(tab, reshape2::melt(ezObj[[j]]$means$tables[[i]][], value.name = dv[j]))
-      }
-      tab <- tab[, !duplicated(colnames(tab))]
+  for (i in 2:(length(ezObj[[1]]$means$n) + 1)) {
 
-      printTable(tab,
-                 caption = paste0(caption, ": ", names(ezObj[[1]]$means$n)[i - 1]),
-                 digits = digits)
-      }
+    tab <- as.data.frame.table(ezObj[[1]]$means$tables[[i]], responseName = dv[1])
+    for (j in 1:length(ezObj)) {
+      tab <- cbind(tab, as.data.frame.table(ezObj[[1]]$means$tables[[i]], responseName = dv[1]))
+    }
 
-  } else {
-
-    for (i in 2:(length(ezObj$means$n) + 1)) {
-
-      printTable(reshape2::melt(ezObj$means$tables[[i]][], value.name = dv),
-                 caption = paste0(caption, ": ", names(ezObj$means$n)[i - 1]),
-                 digits = digits)
-       }
+    tab <- tab[, !duplicated(colnames(tab))]
+    printTable(tab,
+               caption = paste0(caption, ": ", names(ezObj[[1]]$means$n)[i - 1]),
+               digits = digits)
   }
-
 }
+

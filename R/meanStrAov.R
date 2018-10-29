@@ -47,12 +47,12 @@
 meanStrAov <- function(ezObj, effect, level, unit = "ms", numDigits = 0) {
 
   row <- which(ezObj$ANOVA$Effect == effect) + 1
-  dat <- reshape2::melt(ezObj$means$tables[[row]][], value.name = "DV")
+  dat <- as.data.frame.table(ezObj$means$tables[[row]], responseName = "DV")
 
   effect <- unlist(strsplit(effect, ":"))
   level  <- unlist(strsplit(level, ":"))
 
-  out    <- matrix(0, nrow(dat), length(effect))
+  out <- matrix(0, nrow(dat), length(effect))
   for (i in 1:length(effect)) {
     out[, i] <- dat[, effect[i]] == level[i]
   }

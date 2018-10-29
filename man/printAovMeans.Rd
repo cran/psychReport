@@ -4,10 +4,10 @@
 \alias{printAovMeans}
 \title{printAovMeans}
 \usage{
-printAovMeans(ezObj, caption = "Mean", digits = 3, dv = "ms")
+printAovMeans(..., caption = "Mean", digits = 3, dv = "ms")
 }
 \arguments{
-\item{ezObj}{Output from ezANOVA  (NB. ezANOVA must be called with \"return_aov = TRUE\"")}
+\item{...}{Output from ezANOVA  (NB. ezANOVA must be called with \"return_aov = TRUE\"")}
 
 \item{caption}{Title for the table}
 
@@ -37,7 +37,7 @@ dat <- addDataDF(dat, RT = list(list(c("Comp:comp"), vals = c(500, 150, 100)),
 
 aovRT <- ezANOVA(dat, dv=.(RT), wid = .(VP), within = .(Comp), return_aov = TRUE, detailed = TRUE)
 aovRT <- aovTable(aovRT)
-printAovMeans(aovRT, digits = 2,, dv = "ms")  # latex formatted
+printAovMeans(aovRT, digits = 0, dv = "ms")  # latex formatted
 
 \dontrun{
 # Example use in *.Rnw Sweave file inside R chunk

@@ -52,8 +52,8 @@ aovEffectSize <- function(ezObj, effectSize) {
   } else if (effectSize == "es") {
     ezObj$ANOVA$ges <- NULL
     ezObj$ANOVA$pes <- NULL
-    intercept <- which(ezObj$ANOVA$Effect == "(Intercept)")
-    effects   <- which(ezObj$ANOVA$Effect != "(Intercept)")
+    intercept       <- which(ezObj$ANOVA$Effect == "(Intercept)")
+    effects         <- which(ezObj$ANOVA$Effect != "(Intercept)")
     ezObj$ANOVA$es  <- ezObj$ANOVA$SSn / (sum(ezObj$ANOVA$SSn[effects]) + sum(ezObj$ANOVA$SSd[effects]) + ezObj$ANOVA$SSd[intercept])
   } else {
     stop("effectSize not recognized!")

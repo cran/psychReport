@@ -4,10 +4,12 @@
 \alias{aovDispMeans}
 \title{aovDispMeans}
 \usage{
-aovDispMeans(ezObj, name = sys.call())
+aovDispMeans(ezObj, value = "value", name = sys.call())
 }
 \arguments{
 \item{ezObj}{Output from ezANOVA  (NB. ezANOVA must be called with \"return_aov = TRUE\"")}
+
+\item{value}{String for column name}
 
 \item{name}{Required for heading}
 }
@@ -19,12 +21,12 @@ library(psychReport)
 requiredPackages(c("ez"))
 # Example 1:
 # create dataframe
-dat <- createDF(nVP = 6,
+dat <- createDF(nVP = 50,
                 nTrl = 1,
                 design = list("Comp" = c("comp", "incomp")))
 
-dat <- addDataDF(dat, RT = list(list(c("Comp:comp"), vals = c(500, 150, 100)),
-                                list(c("Comp:incomp"), vals = c(520, 150, 100))))
+dat <- addDataDF(dat, RT = list(list(c("Comp:comp"), vals = c(500, 100, 100)),
+                                list(c("Comp:incomp"), vals = c(520, 100, 100))))
 
 aovRT <- ezANOVA(dat, dv=.(RT), wid = .(VP), within = .(Comp),
                  return_aov = TRUE, detailed = TRUE)

@@ -1,8 +1,9 @@
-  #' @title aovDispMeans
+#' @title aovDispMeans
 #'
 #' @description Displays marginal means from model.tables in the command window.
 #'
 #' @param ezObj Output from ezANOVA  (NB. ezANOVA must be called with \"return_aov = TRUE\"")
+#' @param value String for column name
 #' @param name Required for heading
 #'
 #' @return NULL
@@ -12,12 +13,12 @@
 #' requiredPackages(c("ez"))
 #' # Example 1:
 #' # create dataframe
-#' dat <- createDF(nVP = 6,
+#' dat <- createDF(nVP = 50,
 #'                 nTrl = 1,
 #'                 design = list("Comp" = c("comp", "incomp")))
 #'
-#' dat <- addDataDF(dat, RT = list(list(c("Comp:comp"), vals = c(500, 150, 100)),
-#'                                 list(c("Comp:incomp"), vals = c(520, 150, 100))))
+#' dat <- addDataDF(dat, RT = list(list(c("Comp:comp"), vals = c(500, 100, 100)),
+#'                                 list(c("Comp:incomp"), vals = c(520, 100, 100))))
 #'
 #' aovRT <- ezANOVA(dat, dv=.(RT), wid = .(VP), within = .(Comp),
 #'                  return_aov = TRUE, detailed = TRUE)
@@ -25,7 +26,7 @@
 #' aovDispMeans(aovRT)
 #'
 #' @export
-aovDispMeans <- function(ezObj, name=sys.call()) {
+aovDispMeans <- function(ezObj, value="value", name=sys.call()) {
 
   hasMeans <- ezObj$means
   if (is.null(hasMeans)) {
@@ -34,9 +35,11 @@ aovDispMeans <- function(ezObj, name=sys.call()) {
     means = ezObj$means
   }
 
- for (i in 2:(length(means$n) + 1)) {
+  for (i in 2:(length(means$n) + 1)) {
+
+    dat <- as.data.frame.table(means$tables[[i]], responseName = value)
+
     heading <- paste0(c(row.names(as.data.frame(means$n)))[i - 1])
-    dat <- reshape2::melt(means$tables[[i]][])
     width <- max(apply(dat, 1, function(x) sum(nchar(x))))
     ncols <- length(names(dat))
     if (i == 2) {
@@ -49,4 +52,3 @@ aovDispMeans <- function(ezObj, name=sys.call()) {
   }
   print(cli::rule(width = width + ncols))
 }
-
