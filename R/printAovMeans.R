@@ -24,7 +24,7 @@
 #'
 #' aovRT <- ezANOVA(dat, dv=.(RT), wid = .(VP), within = .(Comp), return_aov = TRUE, detailed = TRUE)
 #' aovRT <- aovTable(aovRT)
-#' printAovMeans(aovRT, digits = 0, dv = "ms")  # latex formatted
+#' printAovMeans(aovRT, digits = 0, dv = "mV")  # latex formatted
 #'
 #' \dontrun{
 #' # Example use in *.Rnw Sweave file inside R chunk
@@ -60,9 +60,11 @@ printAovMeans <- function(..., caption = "Mean", digits = 3, dv = "ms") {
 
   for (i in 2:(length(ezObj[[1]]$means$n) + 1)) {
 
-    tab <- as.data.frame.table(ezObj[[1]]$means$tables[[i]], responseName = dv[1])
+    tab <- as.data.frame.table(ezObj[[1]]$means$tables[[i]])
+    names(tab)[ncol(tab)] <- dv[1]
     for (j in 1:length(ezObj)) {
-      tab <- cbind(tab, as.data.frame.table(ezObj[[1]]$means$tables[[i]], responseName = dv[1]))
+      tab <- cbind(tab, as.data.frame.table(ezObj[[j]]$means$tables[[i]]))
+      names(tab)[ncol(tab)] <- dv[j]
     }
 
     tab <- tab[, !duplicated(colnames(tab))]
@@ -70,5 +72,6 @@ printAovMeans <- function(..., caption = "Mean", digits = 3, dv = "ms") {
                caption = paste0(caption, ": ", names(ezObj[[1]]$means$n)[i - 1]),
                digits = digits)
   }
+
 }
 
