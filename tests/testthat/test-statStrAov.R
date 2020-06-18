@@ -9,10 +9,21 @@ test_that("statStrAov", {
                   design = list("Comp" = c("comp", "incomp"),
                                 "Side" = c("left", "right")))
 
-  dat <- addDataDF(dat, RT = list(list(c("Comp:comp", "Side:left"), vals = c(500, 150, 100)),
-                                  list(c("Comp:comp", "Side:right"), vals = c(500, 150, 100)),
-                                  list(c("Comp:incomp", "Side:left"), vals = c(550, 150, 100)),
-                                  list(c("Comp:incomp", "Side:right"), vals = c(550, 150, 100))))
+  dat <- addDataDF(dat, RT = list("Comp:Side_comp:left"    = c(500, 150, 100),
+                                  "Comp:Side_comp:right"   = c(500, 150, 100),
+                                  "Comp:Side_incomp:left"  = c(550, 150, 100),
+                                  "Comp:Side_incomp:right" = c(550, 150, 100)))
+
+  # base R aov
+  aovRT <- aov(RT ~ Comp*Side + Error(VP/(Comp*Side)), dat)
+
+  aovStringComp     <- statStrAov(aovRT, "Comp")
+  aovStringSide     <- statStrAov(aovRT, "Side")
+  aovStringCompSide <- statStrAov(aovRT, "Comp:Side")
+
+  testthat::expect_equal(aovStringComp,     "\\emph{F}(1, 49) = 4.39, \\emph{p} = .04, $\\eta_{p}^2$ = 0.08")
+  testthat::expect_equal(aovStringSide,     "\\emph{F}(1, 49) = 0.32, \\emph{p} = .57, $\\eta_{p}^2$ = 0.01")
+  testthat::expect_equal(aovStringCompSide, "\\emph{F}(1, 49) = 0.49, \\emph{p} = .49, $\\eta_{p}^2$ = 0.01")
 
   # repeated measures ANOVA using ezANOVA
   aovRT <- ezANOVA(dat, dv = .(RT), wid = .(VP), within = .(Comp, Side),
@@ -23,20 +34,22 @@ test_that("statStrAov", {
   aovStringSide     <- statStrAov(aovRT, "Side")
   aovStringCompSide <- statStrAov(aovRT, "Comp:Side")
 
-  expect_equal(aovStringComp,     "\\emph{F}(1, 49) = 4.37, \\emph{p} = .04, $\\eta_{p}^2$ = 0.08")
-  expect_equal(aovStringSide,     "\\emph{F}(1, 49) = 0.32, \\emph{p} = .57, $\\eta_{p}^2$ = 0.01")
-  expect_equal(aovStringCompSide, "\\emph{F}(1, 49) = 0.49, \\emph{p} = .49, $\\eta_{p}^2$ = 0.01")
+  testthat::expect_equal(aovStringComp,     "\\emph{F}(1, 49) = 4.39, \\emph{p} = .04, $\\eta_{p}^2$ = 0.08")
+  testthat::expect_equal(aovStringSide,     "\\emph{F}(1, 49) = 0.32, \\emph{p} = .57, $\\eta_{p}^2$ = 0.01")
+  testthat::expect_equal(aovStringCompSide, "\\emph{F}(1, 49) = 0.49, \\emph{p} = .49, $\\eta_{p}^2$ = 0.01")
 
   # create dataframe and add data with 2(Comp: comp vs. incomp) and 2(Side: left vs. right)
   dat <- createDF(nVP = 50, nTrl = 1,
                   design = list("Comp" = c("comp", "neutral", "incomp")))
   dat <- addDataDF(dat)
 
+  # ezANOVA
+  dat$VP <- as.factor(dat$VP)
   aovRT <- ezANOVA(dat, dv = .(RT), wid = .(VP), within = .(Comp),
                    return_aov = TRUE, detailed = TRUE)
   aovRT <- aovTable(aovRT)
 
   aovStringComp <- statStrAov(aovRT, "Comp")
-  expect_equal(aovStringComp, "\\emph{F}(2, 98) = 0.02, \\emph{p} = .98, $\\eta_{p}^2$ = 0.00, $\\epsilon$ = 0.97")
+  testthat::expect_equal(aovStringComp, "\\emph{F}(2, 98) = 0.02, \\emph{p} = .98, $\\eta_{p}^2$ = 0.00, $\\epsilon$ = 0.97")
 
 })

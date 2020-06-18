@@ -9,22 +9,34 @@ test_that("aovRoundDigits", {
                   design = list("Comp" = c("comp", "neutral", "incomp")))
 
   dat <- addDataDF(dat,
-                   RT = list(list(c("Comp:comp"),    vals = c(500, 150, 150)),
-                             list(c("Comp:neutral"), vals = c(550, 150, 150)),
-                             list(c("Comp:incomp"),  vals = c(600, 150, 150))))
+                   RT = list("Comp_comp"    = c(500, 150, 150),
+                             "Comp_neutral" = c(550, 150, 150),
+                             "Comp_incomp"  = c(600, 150, 150)))
 
-  aovRT <- ezANOVA(dat, dv = .(RT), wid = .(VP), within = .(Comp),
-                   return_aov = TRUE, detailed = TRUE)
+  # base R aov
+  aovRT <- aov(RT ~ Comp + Error(VP/(Comp)), dat)
+  aovRT <- aovRoundDigits(aovRT, 3)
+
+  testthat::expect_equal(as.character(aovRT$ANOVA$F[1]), "2.170")
+
+  aovRT <- aov(RT ~ Comp + Error(VP/(Comp)), dat)
+  aovRT <- aovRoundDigits(aovRT, 1)
+
+  testthat::expect_equal(as.character(aovRT$ANOVA$F[1]), "2.2")
+
+  # repeated measures ANOVA using ezANOVA
+  aovRT <- ez::ezANOVA(dat, dv = .(RT), wid = .(VP), within = .(Comp),
+                       return_aov = TRUE, detailed = TRUE)
   aovRT <- aovRoundDigits(aovRT, 3)  # 3 sig decimal places
 
-  expect_equal(as.character(aovRT$ANOVA$F[1]), "1346.767")
-  expect_equal(as.character(aovRT$ANOVA$F[2]), "   2.171")
+  testthat::expect_equal(as.character(aovRT$ANOVA$F[1]), "1346.037")
+  testthat::expect_equal(as.character(aovRT$ANOVA$F[2]), "   2.170")
 
-  aovRT <- ezANOVA(dat, dv = .(RT), wid = .(VP), within = .(Comp),
-                   return_aov = TRUE, detailed = TRUE)
+  aovRT <- ez::ezANOVA(dat, dv = .(RT), wid = .(VP), within = .(Comp),
+                       return_aov = TRUE, detailed = TRUE)
   aovRT <- aovRoundDigits(aovRT, 1)  # 1 sig decimal places
 
-  expect_equal(as.character(aovRT$ANOVA$F[1]), "1346.8")
-  expect_equal(as.character(aovRT$ANOVA$F[2]), "   2.2")
+  testthat::expect_equal(as.character(aovRT$ANOVA$F[1]), "1346.0")
+  testthat::expect_equal(as.character(aovRT$ANOVA$F[2]), "   2.2")
 
 })

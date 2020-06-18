@@ -9,16 +9,23 @@ test_that("aovJackknifeAdjustment", {
                   design = list("Comp" = c("comp", "incomp")))
 
   dat <- addDataDF(dat,
-                   RT = list(list(c("Comp:comp"), vals = c(500, 30, 50)),
-                             list(c("Comp:incomp"), vals = c(800, 30, 50))))
+                   RT = list("Comp_comp"   = c(500, 30, 50),
+                             "Comp_incomp" = c(800, 30, 50)))
 
-  # repeated measures ANOVA using ezANOVA
-  aovRT <- ezANOVA(dat, dv = .(RT), wid = .(VP), within = .(Comp),
-                       return_aov = TRUE, detailed = TRUE)
+  # base R aov
+  aovRT      <- aov(RT ~ Comp + Error(VP/(Comp)), dat)
   aovRT_pre  <- aovTable(aovRT)
   aovRT      <- aovJackknifeAdjustment(aovRT, length(unique(dat$VP)))
   aovRT_post <- aovTable(aovRT)
 
-  expect_equal(round(as.numeric(aovRT_pre$ANOVA$F)/(49*49), 2), as.numeric(aovRT_post$ANOVA$F))
+  testthat::expect_equal(round(as.numeric(aovRT_pre$ANOVA$F)/(49*49), 2), as.numeric(aovRT_post$ANOVA$F))
+
+  # ezANOVA
+  aovRT      <- ez::ezANOVA(dat, dv = .(RT), wid = .(VP), within = .(Comp), return_aov = TRUE, detailed = TRUE)
+  aovRT_pre  <- aovTable(aovRT)
+  aovRT      <- aovJackknifeAdjustment(aovRT, length(unique(dat$VP)))
+  aovRT_post <- aovTable(aovRT)
+
+  testthat::expect_equal(round(as.numeric(aovRT_pre$ANOVA$F)/(49*49), 2), as.numeric(aovRT_post$ANOVA$F))
 
 })
