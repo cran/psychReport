@@ -16,10 +16,10 @@
 #'                                 "Comp_incomp" = c(520, 150, 100)))
 #'
 #' aovObj <- aov(RT ~ Comp + Error(VP/(Comp)), dat)
-#' aovObj <- aovTidyTable(aovObj)
+#' aovObj <- aovTable(aovObj)
 #' aovObj$ANOVA
-#' printTable(aovObj$ANOVA, digits = c(0,2,3,4,5,6))
-#
+#' printTable(aovObj$ANOVA)
+#'
 #' @export
 aovTidyTable <- function(aovObj) {
 
@@ -87,10 +87,12 @@ aovDispTable <- function(aovObj, caption=sys.call()) {
   if (!is.character(caption)) {
     caption <- paste0("ANOVA:", unlist(lapply(caption[2], as.character)))
   }
-  width <- max(apply(aovObj$ANOVA, 1, function(x) sum(nchar(x))))
-  print(cli::rule(line = 2, center = caption, width = width + 13))
+  width <- apply(aovObj$ANOVA, 2, function(x)  max(unlist(lapply(x, nchar))))
+  width <- sum(pmax(width, unlist(lapply(names(aovObj$ANOVA), nchar)))) + ncol(aovObj$ANOVA) + 1
+
+  print(cli::rule(line = 2, center = caption, width = width))
   print(aovObj$ANOVA, row.names = FALSE)
-  print(cli::rule(width = width + 13))
+  print(cli::rule(width = width))
 
 }
 
@@ -135,11 +137,15 @@ aovDispMeans <- function(aovObj, value="value", caption=sys.call()) {
     aovObj <- aovTidyTable(aovObj)  # convert base aov output
   }
 
-  for (i in 2:(length(aovObj$means$n) + 1)) {
+  nTotal <- length(aovObj$means$n) + 1
+  for (i in 2:nTotal) {
 
     dat     <- as.data.frame.table(aovObj$means$tables[[i]], responseName = value)
     heading <- names(aovObj$means$tables[i])
-    width   <- max(nchar(caption), nchar(heading), apply(dat, 1, function(x) sum(nchar(x)))) + 8
+
+    width   <- apply(dat, 2, function(x) max(unlist(lapply(x, nchar))))
+    width   <- sum(pmax(width, unlist(lapply(names(dat), nchar)))) + ncol(dat) + 1
+
     if (i == 2) {
       if (!is.character(caption)){
         caption <- paste0("ANOVA:", unlist(lapply(caption[2], as.character)))
@@ -148,9 +154,12 @@ aovDispMeans <- function(aovObj, value="value", caption=sys.call()) {
     }
     print(cli::rule(center = heading, width = width))
     print(dat, row.names = FALSE)
-    cat("\n")
+    if (i < nTotal) {
+      cat("\n")
+    } else {
+      print(cli::rule(line = 2, width = width))
+    }
   }
-  print(cli::rule(width = width))
 
 }
 
@@ -182,6 +191,7 @@ aovDispMeans <- function(aovObj, value="value", caption=sys.call()) {
 #'                            "Comp:Side_neutral:right" = c(525, 150, 150)))
 #'
 #' aovRT <- aov(RT ~ Comp * Side + Error(VP/(Comp*Side)), dat)
+#' aovDispMeans(aovRT)
 #' aovRT <- aovEffectSize(aovRT)
 #' aovRT <- aovDispTable(aovRT)
 #'
@@ -272,7 +282,6 @@ aovJackknifeAdjustment <- function(aovObj, numVPs) {
 #' @description Round digits to n decimal places in ezANOVA table
 #'
 #' @param aovObj Output from aov or ezANOVA
-#' @param nsmall Number of digits to round to within ANOVA table
 #'
 #' @return dataframe
 #'
@@ -290,29 +299,40 @@ aovJackknifeAdjustment <- function(aovObj, numVPs) {
 #'                            "Comp:Side_incomp:right" = c(500, 150, 150)))
 #'
 #' aovRT <- aov(RT ~ Comp*Side + Error(VP/(Comp*Side)), dat)
-#' aovRT <- aovRoundDigits(aovRT, 2)
+#' aovRT <- aovRoundDigits(aovRT)
 #' aovDispTable(aovRT)
 #'
 #' # or using ezANOVA
 #' library(ez)
 #' aovRT <- ezANOVA(dat, dv=.(RT), wid = .(VP), within = .(Comp, Side),
 #'                  return_aov = TRUE, detailed = TRUE)
-#' aovRT <- aovRoundDigits(aovRT, 3)
+#' aovRT <- aovRoundDigits(aovRT)
 #' aovDispTable(aovRT)
 #'
 #' @export
-aovRoundDigits <- function(aovObj, nsmall=2) {
+aovRoundDigits <- function(aovObj) {
 
   if (is.null(aovObj$ANOVA)) {
     aovObj <- aovTidyTable(aovObj)  # convert base aov output
   }
 
-  colNames <- c("SSn", "SSd", "F", "p", "eps", "ges", "pes")
+  # round to 2 sig. decimal places
+  colNames <- c("SSn", "SSd", "F", "eps", "ges", "pes")
   colIdx   <- which(names(aovObj$ANOVA) %in% colNames)
   colNames <- names(aovObj$ANOVA)[colIdx]
 
   aovObj$ANOVA <- aovObj$ANOVA %>%
-    mutate_at(vars(colNames), list(~ round(., digits = nsmall)))
+    mutate_at(vars(all_of(colNames)), list(~ trimws(format(round(., digits = 2), nsmall = 2))))
+
+  aovObj$ANOVA$DFn <- ifelse(aovObj$ANOVA$DFn == as.integer(aovObj$ANOVA$DFn),
+                             trimws(as.integer(aovObj$ANOVA$DFn)),
+                             trimws(format(round(aovObj$ANOVA$DFn, digits = 2), nsmall = 2)))
+  aovObj$ANOVA$DFd <- ifelse(aovObj$ANOVA$DFd == as.integer(aovObj$ANOVA$DFd),
+                             trimws(as.integer(aovObj$ANOVA$DFd)),
+                             trimws(format(round(aovObj$ANOVA$DFd, digits = 2), nsmall = 2)))
+
+  # round p-values to 3 sig. decimal places
+  aovObj$ANOVA$p <- format(round(aovObj$ANOVA$p, digits = 3), nsmall = 3)
 
   return(aovObj)
 
@@ -327,6 +347,7 @@ aovRoundDigits <- function(aovObj, nsmall=2) {
 #'
 #' @param aovObj The returned object from a call to ezANOVA
 #' @param type "GG" (Greenhouse-Geisser) or "HF" (Huynh-Feldt)
+#' @param adjDF TRUE/FALSE Should DF's be adjusted?
 #'
 #' @return list
 #'
@@ -350,24 +371,37 @@ aovRoundDigits <- function(aovObj, nsmall=2) {
 #' aovDispTable(aovRT)
 #'
 #' @export
-aovSphericityAdjustment <- function(aovObj, type = "GG") {
+aovSphericityAdjustment <- function(aovObj, type = "GG", adjDF = TRUE) {
 
   hasSphericity <- aovObj$"Sphericity Corrections"
   if (is.null(hasSphericity)) {
       stop("aovObj does not have sphericity corrections.")
   }
+  if (!type %in% c("GG", "HF")) {
+    stop("Sphericity correction type not recognized!")
+  }
 
   sphericityRows <- match(rownames(aovObj$"Sphericity Corrections"), rownames(aovObj$ANOVA))
+  # Adjust p-values where Mauchls's test significant
   if (type == "GG") {
-    aovObj$ANOVA$p[sphericityRows]   <- aovObj$"Sphericity Corrections"$"p[GG]"
+    aovObj$ANOVA$p[sphericityRows]   <- ifelse(aovObj$"Mauchly's Test for Sphericity"$"p" < 0.05, aovObj$"Sphericity Corrections"$"p[GG]", aovObj$ANOVA$p[sphericityRows])
     aovObj$ANOVA$eps                 <- rep(0, length(aovObj$ANOVA$"Effect"))
-    aovObj$ANOVA$eps[sphericityRows] <- aovObj$"Sphericity Corrections"$GGe
+    aovObj$ANOVA$eps[sphericityRows] <- aovObj$"Sphericity Corrections"$"GGe"
   } else if (type == "HF") {
-    aovObj$ANOVA$p[sphericityRows]   <- aovObj$"Sphericity Corrections"$"p[HF]"
+    aovObj$ANOVA$p[sphericityRows]   <- ifelse(aovObj$"Mauchly's Test for Sphericity"$"p" < 0.05, aovObj$"Sphericity Corrections"$"p[HF]", aovObj$ANOVA$p[sphericityRows])
     aovObj$ANOVA$eps                 <- rep(0, length(aovObj$ANOVA$"Effect"))
-    aovObj$ANOVA$eps[sphericityRows] <- aovObj$"Sphericity Corrections"$HFe
-  } else {
-    stop("Sphericity correction type not recognized!")
+    aovObj$ANOVA$eps[sphericityRows] <- aovObj$"Sphericity Corrections"$"HFe"
+  }
+
+  aovObj$ANOVA$"eps_p<.05"                 <- rep("", length(aovObj$ANOVA$"Effect"))
+  aovObj$ANOVA$"eps_p<.05"[sphericityRows] <- aovObj$"Mauchly's Test for Sphericity"$"p<.05"
+  aovObj$ANOVA$"p<.05"                     <- ifelse(aovObj$ANOVA$p <.05, "*", "")
+
+  # Adjust degrees of freedom where Mauchls's test significant
+  sphericityRows <- sphericityRows[aovObj$"Mauchly's Test for Sphericity"$"p" < 0.05]
+  if (adjDF) {
+    aovObj$ANOVA$DFn[sphericityRows] <- aovObj$ANOVA$DFn[sphericityRows] * aovObj$ANOVA$eps[sphericityRows]
+    aovObj$ANOVA$DFd[sphericityRows] <- aovObj$ANOVA$DFd[sphericityRows] * aovObj$ANOVA$eps[sphericityRows]
   }
 
   return(aovObj)
@@ -386,9 +420,8 @@ aovSphericityAdjustment <- function(aovObj, type = "GG") {
 #' @param effectSize Effect size (pes vs. ges)
 #' @param sphericityCorrections TRUE/FALSE (ezANOVA)
 #' @param sphericityCorrectionType "GG" (default) vs. "HF" (ezANOVA)
+#' @param sphericityCorrectionAdjDF TRUE/FALSE Should DF's values be corrected?
 #' @param removeSumSquares TRUE/FALSE Remove SSn/SSd columns from the ANOVA table
-#' @param roundDigits TRUE/FALSE Round numerical values to numDigits
-#' @param numDigits The number of digits to round to if roundDigits = TRUE
 #'
 #' @return list
 #'
@@ -419,9 +452,8 @@ aovTable <- function(aovObj,
                      effectSize = "pes",
                      sphericityCorrections = TRUE,
                      sphericityCorrectionType = "GG",
-                     removeSumSquares = TRUE,
-                     roundDigits = TRUE,
-                     numDigits = 2) {
+                     sphericityCorrectionAdjDF = FALSE,
+                     removeSumSquares = TRUE) {
 
   if (is.null(aovObj$ANOVA)) {
     aovObj <- aovTidyTable(aovObj)  # convert base aov output
@@ -431,8 +463,6 @@ aovTable <- function(aovObj,
     stop("Call ezANOVA with \"detailed = TRUE\"!")
   }
 
-  # p-value summary *** vs. ** vs *
-  aovObj$ANOVA$"p<.05" <- pValueSummary(aovObj$ANOVA$p)
 
   # add partial eta-squared
   if (effectSize == "pes") {
@@ -444,18 +474,18 @@ aovTable <- function(aovObj,
   }
 
   if (sphericityCorrections & any(aovObj$ANOVA$DFn > 1)) {
-    hasSphericity <- aovObj$"Sphericity Corrections"
-    if (is.null(hasSphericity)) {
+    if (is.null(aovObj$"Sphericity Correction")) {
       stop("Sphericity Corrections not within aov(). Use ezANOVA().")
     }
-    aovObj <- aovSphericityAdjustment(aovObj, sphericityCorrectionType)
+    aovObj <- aovSphericityAdjustment(aovObj, sphericityCorrectionType, sphericityCorrectionAdjDF)
   }
 
-  aovObj$ANOVA <- aovObj$ANOVA[aovObj$ANOVA$Effect != "(Intercept)", ]
+  # p-value summary *** vs. ** vs *
+  aovObj$ANOVA$"p<.05" <- pValueSummary(aovObj$ANOVA$p)
+  aovObj$ANOVA         <- aovObj$ANOVA[aovObj$ANOVA$Effect != "(Intercept)", ]
 
-  if (roundDigits) {
-    aovObj <- aovRoundDigits(aovObj, nsmall = numDigits)
-  }
+  # round digits in table
+  aovObj <- aovRoundDigits(aovObj)
 
   if (removeSumSquares) {
     aovObj$ANOVA$SSn <- NULL
@@ -522,11 +552,14 @@ effectsizeValueString <- function(aovObj, effect, effectSize = "pes"){
   if (is.null(aovObj$ANOVA)) {
     stop("aovObj does not have appropriate ANOVA table")
   }
+  if (!effectSize %in% c("pes", "ges")) {
+    stop("effectSize not recognized")
+  }
 
-  effectSizeIdx <- which(names(aovObj$ANOVA) %in% effectSize)
-  if (length(effectSizeIdx) == 0) {
+  if (!effectSize %in% names(aovObj$ANOVA)) {
     stop(paste0(effectSize, " not in ANOVA table!"))
   }
+
   if (effectSize == "pes") {
     effectSizeValue  <- aovObj$ANOVA[, "pes"][aovObj$ANOVA$Effect == effect]
     return(paste0("$\\eta_{p}^2$ = ", effectSizeValue))
@@ -534,6 +567,7 @@ effectsizeValueString <- function(aovObj, effect, effectSize = "pes"){
     effectSizeValue <- aovObj$ANOVA[, "ges"][aovObj$ANOVA$Effect == effect]
     return(paste0("$\\eta_{G}^2$ = ", effectSizeValue))
   }
+
 }
 
 
