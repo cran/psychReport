@@ -12,8 +12,8 @@
 #' dat <- createDF(nVP = 6, nTrl = 1,
 #'                 design = list("Comp" = c("comp", "incomp")))
 #'
-#' dat <- addDataDF(dat, RT = list("Comp_comp"   = c(500, 150, 100),
-#'                                 "Comp_incomp" = c(520, 150, 100)))
+#' dat <- addDataDF(dat, RT = list("Comp comp"   = c(500, 150, 100),
+#'                                 "Comp incomp" = c(520, 150, 100)))
 #'
 #' aovObj <- aov(RT ~ Comp + Error(VP/(Comp)), dat)
 #' aovObj <- aovTable(aovObj)
@@ -66,8 +66,8 @@ aovTidyTable <- function(aovObj) {
 #' dat <- createDF(nVP = 6, nTrl = 1,
 #'                 design = list("Comp" = c("comp", "incomp")))
 #'
-#' dat <- addDataDF(dat, RT = list("Comp_comp"   = c(500, 150, 100),
-#'                                 "Comp_incomp" = c(520, 150, 100)))
+#' dat <- addDataDF(dat, RT = list("Comp comp"   = c(500, 150, 100),
+#'                                 "Comp incomp" = c(520, 150, 100)))
 #'
 #' aovObj <- aov(RT ~ Comp + Error(VP/(Comp)), dat)
 #' aovDispTable(aovObj)
@@ -114,8 +114,8 @@ aovDispTable <- function(aovObj, caption=sys.call()) {
 #' dat <- createDF(nVP = 50, nTrl = 1,
 #'                 design = list("Comp" = c("comp", "incomp")))
 #'
-#' dat <- addDataDF(dat, RT = list("Comp_comp"   = c(500, 100, 100),
-#'                                 "Comp_incomp" = c(520, 100, 100)))
+#' dat <- addDataDF(dat, RT = list("Comp comp"   = c(500, 100, 100),
+#'                                 "Comp incomp" = c(520, 100, 100)))
 #'
 #' aovRT <- aov(RT ~ Comp + Error(VP/(Comp)), dat)
 #' aovDispMeans(aovRT)
@@ -147,7 +147,7 @@ aovDispMeans <- function(aovObj, value="value", caption=sys.call()) {
     width   <- sum(pmax(width, unlist(lapply(names(dat), nchar)))) + ncol(dat) + 1
 
     if (i == 2) {
-      if (!is.character(caption)){
+      if (!is.character(caption)) {
         caption <- paste0("ANOVA:", unlist(lapply(caption[2], as.character)))
       }
       print(cli::rule(line = 2, center = caption, width = width))
@@ -183,12 +183,12 @@ aovDispMeans <- function(aovObj, value="value", caption=sys.call()) {
 #'                               "Side" = c("left", "right")))
 #'
 #' dat <- addDataDF(dat,
-#'                  RT = list("Comp:Side_comp:left"     = c(500, 150, 150),
-#'                            "Comp:Side_comp:right"    = c(500, 150, 150),
-#'                            "Comp:Side_incomp:left"   = c(550, 150, 150),
-#'                            "Comp:Side_incomp:right"  = c(550, 150, 150),
-#'                            "Comp:Side_neutral:left"  = c(525, 150, 150),
-#'                            "Comp:Side_neutral:right" = c(525, 150, 150)))
+#'                  RT = list("Comp:Side comp:left"     = c(500, 150, 150),
+#'                            "Comp:Side comp:right"    = c(500, 150, 150),
+#'                            "Comp:Side incomp:left"   = c(550, 150, 150),
+#'                            "Comp:Side incomp:right"  = c(550, 150, 150),
+#'                            "Comp:Side neutral:left"  = c(525, 150, 150),
+#'                            "Comp:Side neutral:right" = c(525, 150, 150)))
 #'
 #' aovRT <- aov(RT ~ Comp * Side + Error(VP/(Comp*Side)), dat)
 #' aovDispMeans(aovRT)
@@ -242,10 +242,10 @@ aovEffectSize <- function(aovObj, effectSize = "pes") {
 #'                               "Side" = c("left", "right")))
 #'
 #' dat <- addDataDF(dat,
-#'                  RT = list("Comp:Side_comp:left"    = c(500, 150, 150),
-#'                            "Comp:Side_comp:right"   = c(500, 150, 150),
-#'                            "Comp:Side_incomp:left"  = c(500, 150, 150),
-#'                            "Comp:Side_incomp:right" = c(500, 150, 150)))
+#'                  RT = list("Comp:Side comp:left"    = c(500, 150, 150),
+#'                            "Comp:Side comp:right"   = c(500, 150, 150),
+#'                            "Comp:Side incomp:left"  = c(500, 150, 150),
+#'                            "Comp:Side incomp:right" = c(500, 150, 150)))
 #'
 #' aovRT <- aov(RT ~ Comp*Side + Error(VP/(Comp*Side)), dat)
 #' aovRT <- aovJackknifeAdjustment(aovRT, length(unique(dat$VP)))
@@ -293,10 +293,10 @@ aovJackknifeAdjustment <- function(aovObj, numVPs) {
 #'                               "Side" = c("left", "right")))
 #'
 #' dat <- addDataDF(dat,
-#'                  RT = list("Comp:Side_comp:left"    = c(500, 150, 150),
-#'                            "Comp:Side_comp:right"   = c(500, 150, 150),
-#'                            "Comp:Side_incomp:left"  = c(500, 150, 150),
-#'                            "Comp:Side_incomp:right" = c(500, 150, 150)))
+#'                  RT = list("Comp:Side comp:left"    = c(500, 150, 150),
+#'                            "Comp:Side comp:right"   = c(500, 150, 150),
+#'                            "Comp:Side incomp:left"  = c(500, 150, 150),
+#'                            "Comp:Side incomp:right" = c(500, 150, 150)))
 #'
 #' aovRT <- aov(RT ~ Comp*Side + Error(VP/(Comp*Side)), dat)
 #' aovRT <- aovRoundDigits(aovRT)
@@ -358,9 +358,9 @@ aovRoundDigits <- function(aovObj) {
 #'                 design = list("Comp" = c("neutral", "comp", "incomp")))
 #'
 #' dat <- addDataDF(dat,
-#'                  RT = list("Comp_neutral" = c(510, 150, 100),
-#'                            "Comp_comp"    = c(500, 150, 100),
-#'                            "Comp_incomp"  = c(520, 150, 100)))
+#'                  RT = list("Comp neutral" = c(510, 150, 100),
+#'                            "Comp comp"    = c(500, 150, 100),
+#'                            "Comp incomp"  = c(520, 150, 100)))
 #'
 #' # using ezANOVA
 #' library(ez)
@@ -395,7 +395,7 @@ aovSphericityAdjustment <- function(aovObj, type = "GG", adjDF = TRUE) {
 
   aovObj$ANOVA$"eps_p<.05"                 <- rep("", length(aovObj$ANOVA$"Effect"))
   aovObj$ANOVA$"eps_p<.05"[sphericityRows] <- aovObj$"Mauchly's Test for Sphericity"$"p<.05"
-  aovObj$ANOVA$"p<.05"                     <- ifelse(aovObj$ANOVA$p <.05, "*", "")
+  aovObj$ANOVA$"p<.05"                     <- ifelse(aovObj$ANOVA$p < .05, "*", "")
 
   # Adjust degrees of freedom where Mauchls's test significant
   sphericityRows <- sphericityRows[aovObj$"Mauchly's Test for Sphericity"$"p" < 0.05]
@@ -433,10 +433,10 @@ aovSphericityAdjustment <- function(aovObj, type = "GG", adjDF = TRUE) {
 #'                               "Side" = c("left", "right")))
 #'
 #' dat <- addDataDF(dat,
-#'                  RT = list("Comp:Side_comp:left"    = c(500, 150, 150),
-#'                            "Comp:Side_comp:right"   = c(500, 150, 150),
-#'                            "Comp:Side_incomp:left"  = c(500, 150, 150),
-#'                            "Comp:Side_incomp:right" = c(500, 150, 150)))
+#'                  RT = list("Comp:Side comp:left"    = c(500, 150, 150),
+#'                            "Comp:Side comp:right"   = c(500, 150, 150),
+#'                            "Comp:Side incomp:left"  = c(500, 150, 150),
+#'                            "Comp:Side incomp:right" = c(500, 150, 150)))
 #'
 #' aovRT <- aov(RT ~ Comp*Side + Error(VP/(Comp*Side)), dat)
 #' aovRT <- aovTable(aovRT)
@@ -526,10 +526,10 @@ aovTable <- function(aovObj,
 #'                 design = list("Comp" = c("comp", "incomp"),
 #'                               "Side" = c("left", "right")))
 #'
-#' dat <- addDataDF(dat, RT = list("Comp:Side_comp:left"    = c(500, 150, 100),
-#'                                 "Comp:Side_comp:right"   = c(500, 150, 100),
-#'                                 "Comp:Side_incomp:left"  = c(520, 150, 100),
-#'                                 "Comp:Side_incomp:right" = c(520, 150, 100)))
+#' dat <- addDataDF(dat, RT = list("Comp:Side comp:left"    = c(500, 150, 100),
+#'                                 "Comp:Side comp:right"   = c(500, 150, 100),
+#'                                 "Comp:Side incomp:left"  = c(520, 150, 100),
+#'                                 "Comp:Side incomp:right" = c(520, 150, 100)))
 #'
 #' aovRT <- aov(RT ~ Comp*Side + Error(VP/(Comp*Side)), dat)
 #' aovRT <- aovTable(aovRT)
@@ -590,10 +590,10 @@ effectsizeValueString <- function(aovObj, effect, effectSize = "pes"){
 #'                 design = list("Comp" = c("comp", "incomp"),
 #'                               "Side" = c("left", "right")))
 #'
-#' dat <- addDataDF(dat, RT = list("Comp:Side_comp:left"    = c(500, 150, 100),
-#'                                 "Comp:Side_comp:right"   = c(500, 150, 100),
-#'                                 "Comp:Side_incomp:left"  = c(520, 150, 100),
-#'                                 "Comp:Side_incomp:right" = c(520, 150, 100)))
+#' dat <- addDataDF(dat, RT = list("Comp:Side comp:left"    = c(500, 150, 100),
+#'                                 "Comp:Side comp:right"   = c(500, 150, 100),
+#'                                 "Comp:Side incomp:left"  = c(520, 150, 100),
+#'                                 "Comp:Side incomp:right" = c(520, 150, 100)))
 #'
 #' # or using ezANOVA
 #' library(ez)
@@ -641,10 +641,10 @@ fValueString <- function(aovObj, effect){
 #'                 design = list("Comp" = c("comp", "incomp"),
 #'                               "Side" = c("left", "right")))
 #'
-#' dat <- addDataDF(dat, RT = list("Comp:Side_comp:left"    = c(500, 150, 100),
-#'                                 "Comp:Side_comp:right"   = c(500, 150, 100),
-#'                                 "Comp:Side_incomp:left"  = c(520, 150, 100),
-#'                                 "Comp:Side_incomp:right" = c(520, 150, 100)))
+#' dat <- addDataDF(dat, RT = list("Comp:Side comp:left"    = c(500, 150, 100),
+#'                                 "Comp:Side comp:right"   = c(500, 150, 100),
+#'                                 "Comp:Side incomp:left"  = c(520, 150, 100),
+#'                                 "Comp:Side incomp:right" = c(520, 150, 100)))
 #'
 #' aovRT <- aov(RT ~ Comp*Side + Error(VP/(Comp*Side)), dat)
 #' aovRT <- aovTable(aovRT)
@@ -709,8 +709,8 @@ meanStrAov <- function(aovObj, effect, level, unit = "ms", numDigits = 0) {
 #' dat <- createDF(nVP = 6, nTrl = 1,
 #'                 design = list("Comp" = c("comp", "incomp")))
 #'
-#' dat <- addDataDF(dat, RT = list("Comp_comp"   = c(500, 150, 100),
-#'                                 "Comp_incomp" = c(520, 150, 100)))
+#' dat <- addDataDF(dat, RT = list("Comp comp"   = c(500, 150, 100),
+#'                                 "Comp incomp" = c(520, 150, 100)))
 #'
 #' aovRT <- aov(RT ~ Comp + Error(VP/(Comp)), dat)
 #' aovRT <- aovTable(aovRT)
@@ -752,12 +752,24 @@ printAovMeans <- function(..., caption = "Mean", digits = 3, dv = "ms") {
 
     tab <- as.data.frame.table(aovObj[[1]]$means$tables[[i]])
     names(tab)[ncol(tab)] <- dv[1]
-    for (j in 1:length(aovObj)) {
-      tab <- cbind(tab, as.data.frame.table(aovObj[[j]]$means$tables[[i]]))
-      names(tab)[ncol(tab)] <- dv[j]
+    if (length(aovObj) > 1) {
+      for (j in 2:length(aovObj)) {
+        tab <- cbind(tab, as.data.frame.table(aovObj[[j]]$means$tables[[i]]))
+        names(tab)[ncol(tab)] <- dv[j]
+      }
     }
 
-    tab <- tab[, !duplicated(colnames(tab))]
+    # remove duplicated factor columns
+    colsToRemove <- intersect(which(duplicated(colnames(tab))), which(unlist(lapply(tab, is.factor))))
+    if (length(colsToRemove) > 0) {
+      tab <- tab[, -c(colsToRemove)]
+    }
+
+    # TO DO: xtable.sanitize?
+    names(tab) <- gsub("_", "\\\\_", names(tab))
+    nncs <- which(!unlist(lapply(tab, is.numeric)))
+    tab[,nncs] <- sapply(tab[, nncs], function(x) gsub("_", "\\\\_", x))
+
     printTable(tab,
                caption = paste0(caption, ": ", names(aovObj[[1]]$means$tables[i])),
                digits = digits)
@@ -785,10 +797,10 @@ printAovMeans <- function(..., caption = "Mean", digits = 3, dv = "ms") {
 #'                 design = list("Comp" = c("comp", "incomp"),
 #'                               "Side" = c("left", "right")))
 #'
-#' dat <- addDataDF(dat, RT = list("Comp:Side_comp:left"    = c(500, 150, 100),
-#'                                 "Comp:Side_comp:right"   = c(500, 150, 100),
-#'                                 "Comp:Side_incomp:left"  = c(520, 150, 100),
-#'                                 "Comp:Side_incomp:right" = c(520, 150, 100)))
+#' dat <- addDataDF(dat, RT = list("Comp:Side comp:left"    = c(500, 150, 100),
+#'                                 "Comp:Side comp:right"   = c(500, 150, 100),
+#'                                 "Comp:Side incomp:left"  = c(520, 150, 100),
+#'                                 "Comp:Side incomp:right" = c(520, 150, 100)))
 #'
 #' aovRT <- aov(RT ~ Comp*Side + Error(VP/(Comp*Side)), dat)
 #' aovRT <- aovTable(aovRT)
@@ -845,9 +857,9 @@ statStrAov <- function(aovObj, effect) {
 #' dat <- createDF(nVP = 20, nTrl = 1,
 #'                 design = list("Comp" = c("neutral", "comp", "incomp")))
 #'
-#' dat <- addDataDF(dat, RT = list("Comp_neutral" = c(510, 150, 100),
-#'                                 "Comp_comp"    = c(500, 150, 100),
-#'                                 "Comp_incomp"  = c(520, 150, 100)))
+#' dat <- addDataDF(dat, RT = list("Comp neutral" = c(510, 150, 100),
+#'                                 "Comp comp"    = c(500, 150, 100),
+#'                                 "Comp incomp"  = c(520, 150, 100)))
 #'
 #' # repeated measures ANOVA using ezANOVA
 #' library(ez)
