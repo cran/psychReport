@@ -12,9 +12,8 @@
 #' @return character
 #'
 #' @examples
-#' requiredPackages(c("dplyr", "ez"))
-#'
 #' # Example 1:
+#' library(ez)
 #' # create dataframe
 #' dat <- createDF(nVP = 6, nTrl = 1,
 #'                 design = list("Comp" = c("comp", "incomp", "neutral")))
@@ -115,14 +114,14 @@ printTable <- function(obj, caption = "DF", digits=3, onlyContents=FALSE) {
 mathString <- function(str1, str2, operation = "-",
                        numDigits = 0, unit = "ms") {
 
-    extractNum <- function(x){
-        return(as.numeric(gsub("[[:alpha:]]", "", x)))
-    }
+  extractNum <- function(x){
+    return (as.numeric(regmatches(x, gregexpr("-*\\d+\\.*\\d*", x))))
+  }
 
-    nums <- lapply(list(str1, str2), extractNum)
-    result <- do.call(operation, nums)
+  nums <- lapply(list(str1, str2), extractNum)
+  result <- do.call(operation, nums)
 
-    return(numValueString(result, numDigits, unit))
+  return(numValueString(result, numDigits, unit))
 
 }
 
