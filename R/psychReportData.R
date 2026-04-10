@@ -124,13 +124,13 @@ addDataDF <- function(dat, RT = NULL, Error = NULL) {
   } else if (!is.null(RT) & is.double(RT)) {
     dat$RT <- rtDist(n = nrow(dat), RT[1], RT[2], RT[3])
   } else if (!is.null(RT) & is.list(RT)) {
-    for (i in c(1:length(RT))) {
+    for (i in seq_along(RT)) {
       fcts_levls <- unlist(strsplit(gsub("\\s+", " ", names(RT[i])), split = " "))
       fcts <- unlist(strsplit(fcts_levls[1], split = ":"))
       levls <- unlist(strsplit(fcts_levls[2], split = ":"))
 
       idx <- NULL
-      for (fct in c(1:length(fcts))) {
+      for (fct in seq_along(fcts)) {
         idx <- cbind(idx, dat[fcts[fct]] == levls[fct])
       }
       idx <- apply(idx, 1, all)
@@ -147,19 +147,19 @@ addDataDF <- function(dat, RT = NULL, Error = NULL) {
   } else if (!is.null(Error) & is.double(Error)) {
     dat$Error <- errDist(n = nrow(dat), Error)
   } else if (!is.null(Error) & is.list(Error)) {
-    for (i in c(1:length(Error))) {
+    for (i in seq_along(Error)) {
       fcts_levls <- unlist(strsplit(gsub("\\s+", " ", names(Error[i])), split = " "))
       fcts <- unlist(strsplit(fcts_levls[1], split = ":"))
       levls <- unlist(strsplit(fcts_levls[2], split = ":"))
 
       idx <- NULL
-      for (fct in c(1:length(fcts))) {
+      for (fct in seq_along(fcts)) {
         idx <- cbind(idx, dat[fcts[fct]] == levls[fct])
       }
       idx <- apply(idx, 1, all)
 
       dat$bins[idx] <- dplyr::ntile(dat$RT[idx], length(Error[[1]]))
-      for (bin in 1:length(Error[[1]])) {
+      for (bin in seq_along(Error[[1]])) {
         idx_bin <- dat$bins == bin & idx
         dat$Error[idx_bin] <- errDist(n = sum(idx_bin), Error[[i]][bin])
       }
@@ -297,10 +297,10 @@ summaryMSDSE <- function(data, factors, dvs, withinCorrection = NULL) {
 
   # calculate N, mean, sd, and se for each group variable
   dat <- fn1 <- fn3 <- se <- NULL # avoid CRAN note!
-  for (i in 1:length(dvs)) {
+  for (i in seq_along(dvs)) {
     tmp_dat <- data %>%
-      dplyr::group_by_at(factors) %>%
-      dplyr::summarize_at(dvs[i], c(length, mean, sd)) %>%
+      dplyr::group_by(dplyr::across(dplyr::all_of(factors))) %>%
+      dplyr::summarize(dplyr::across(dplyr::all_of(dvs[i]), list(fn1 = length, fn2 = mean, fn3 = sd), .names = "{.fn}"), .groups = "drop") %>%
       dplyr::mutate(se = fn3 / sqrt(fn1),
                     se_ci = se * qt(0.975, nvps - 1)) %>%
       setNames(c(factors, "N", paste0(dvs[i], "_mean"), paste0(dvs[i], "_sd"), paste0(dvs[i], "_se"), paste0(dvs[i], "_se_ci")))
@@ -318,7 +318,7 @@ summaryMSDSE <- function(data, factors, dvs, withinCorrection = NULL) {
   # adapted from Cookbook for R: http://www.cookbook-r.com/Graphs/Plotting_means_and_error_bars_(ggplot2)/
   if (!is.null(withinCorrection)) {
     cf <- sqrt(ncells / (ncells - 1))
-    for (i in 1:length(withinCorrection)) {
+    for (i in seq_along(withinCorrection)) {
       dat <- dat %>%
         dplyr::mutate(
           "{withinCorrection[i]}_sd" := !!as.name(paste0(withinCorrection[i], "_sd")) * cf,
@@ -336,7 +336,8 @@ summaryMSDSE <- function(data, factors, dvs, withinCorrection = NULL) {
 
 #' @title normData
 #'
-#' @description Aggregate data returning the mean, standard deviation, and standard error
+#' @description Normalise within-subjects data by removing between-subjects
+#' variability. Each participant's scores are centered on the grand mean.
 #'
 #' @param data A dataframe
 #' @param idvar Column indicating the individual participants
@@ -370,10 +371,10 @@ summaryMSDSE <- function(data, factors, dvs, withinCorrection = NULL) {
 #' @export
 normData <- function(data, idvar, dvs) {
   idmean <- NULL # avoid CRAN note!
-  for (i in 1:length(dvs)) {
+  for (i in seq_along(dvs)) {
     grand_mean <- mean(data[[dvs[i]]])
     data <- data %>%
-      dplyr::group_by_at(idvar) %>%
+      dplyr::group_by(dplyr::across(dplyr::all_of(idvar))) %>%
       dplyr::mutate(
         idmean = mean(!!as.name(dvs[i])),
         "{dvs[i]}_norm" := !!as.name(dvs[i]) - idmean + grand_mean

@@ -4,19 +4,16 @@
 \alias{aovEffectSize}
 \title{aovEffectSize}
 \usage{
-aovEffectSize(aovObj, effectSize = "pes")
+aovEffectSize(aovObj)
 }
 \arguments{
-\item{aovObj}{Output from aov or ezANOVA}
-
-\item{effectSize}{Effect size (pes vs. ges)}
+\item{aovObj}{Output from aov}
 }
 \value{
 list
 }
 \description{
-Add effect size to ANOVA table. Effect sizes: partial eta squared (pes),
-vs. ges (generalized eta squared, NB: default when using ezANOVA).
+Add partial eta squared (pes) effect size to ANOVA table.
 }
 \examples{
 # Example 1:
@@ -37,12 +34,5 @@ aovRT <- aov(RT ~ Comp * Side + Error(VP/(Comp*Side)), dat)
 aovDispMeans(aovRT)
 aovRT <- aovEffectSize(aovRT)
 aovRT <- aovDispTable(aovRT)
-
-# or with ezANOVA
-library(ez)
-aovRT <- ezANOVA(dat, dv=.(RT), wid = .(VP), within = .(Comp, Side),
-                 return_aov = TRUE, detailed = TRUE)
-aovRT <- aovEffectSize(aovRT)
-aovDispTable(aovRT)
 
 }

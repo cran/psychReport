@@ -8,7 +8,7 @@ requiredPackages(
   packages,
   installPackages = FALSE,
   lib = .libPaths()[1],
-  repos = "http://cran.us.r-project.org"
+  repos = "https://cloud.r-project.org"
 )
 }
 \arguments{

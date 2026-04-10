@@ -7,11 +7,11 @@
 effectsizeValueString(aovObj, effect, effectSize = "pes")
 }
 \arguments{
-\item{aovObj}{Output from aov or ezANOVA (NB. ezANOVA must be called with detailed = TRUE)}
+\item{aovObj}{Output from aov}
 
 \item{effect}{The effect within the ANOVA table to return}
 
-\item{effectSize}{pes (partial eta squared) vs. ges (generalised eta squared)}
+\item{effectSize}{Only "pes" (partial eta squared) is supported}
 }
 \value{
 character
@@ -34,15 +34,6 @@ dat <- addDataDF(dat, RT = list("Comp:Side comp:left"    = c(500, 150, 100),
                                 "Comp:Side incomp:right" = c(520, 150, 100)))
 
 aovRT <- aov(RT ~ Comp*Side + Error(VP/(Comp*Side)), dat)
-aovRT <- aovTable(aovRT)
-
-pesString <- effectsizeValueString(aovRT, "Comp")  # partial eta squared
-pesString <- effectsizeValueString(aovRT, "Comp:Side")
-
-# or using ezANOVA
-library(ez)
-aovRT <- ezANOVA(dat, dv=.(RT), wid = .(VP), within = .(Comp, Side),
-                 return_aov = TRUE, detailed = TRUE)
 aovRT <- aovTable(aovRT)
 
 pesString <- effectsizeValueString(aovRT, "Comp")  # partial eta squared

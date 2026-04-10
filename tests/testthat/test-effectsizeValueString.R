@@ -1,6 +1,6 @@
-context("statStrT")
+context("effectsizeValueString")
 
-test_that("statStrT", {
+test_that("effectsizeValueString", {
 
   set.seed(1)
 
@@ -22,24 +22,9 @@ test_that("statStrT", {
   effectString <- effectsizeValueString(aovRT, effect = "Comp")
   testthat::expect_equal(effectString, "$\\eta_{p}^2$ = 0.05")
 
-  aovRT <- aov(RT ~ Comp + Error(VP/(Comp)), dat)
-  aovRT <- aovTable(aovRT, effectSize = "ges")
-
-  effectString <- effectsizeValueString(aovRT, effect = "Comp", effectSize = "ges")
-  testthat::expect_equal(effectString, "$\\eta_{G}^2$ = 0.05")
-
-  # ezANOVA
-  aovRT <- ezANOVA(dat, dv = .(RT), wid = .(VP), within = .(Comp),
-                   return_aov = TRUE, detailed = TRUE)
-  aovRT <- aovTable(aovRT)
-
-  effectString <- effectsizeValueString(aovRT, effect = "Comp")
-  testthat::expect_equal(effectString, "$\\eta_{p}^2$ = 0.05")
-
-  effectString <- effectsizeValueString(aovRT, effect = "Comp", )
-  testthat::expect_equal(effectString, "$\\eta_{p}^2$ = 0.05")
-
   # unknown effect size raises error
+  testthat::expect_error(effectsizeValueString(aovRT, effect = "Comp", effectSize = "ges"))
   testthat::expect_error(effectsizeValueString(aovRT, effect = "Comp", effectSize = "zzz"))
 
 })
+
